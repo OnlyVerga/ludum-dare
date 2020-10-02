@@ -424,11 +424,3 @@ def generate_chunk(x,y, CHUNK_SIZE, offset = 0.1, multiplier = 5):
             if tile_type != 0:
                 chunk_data.append([[target_x,target_y],tile_type])
     return chunk_data
-
-def block_at(pos, CHUNK_SIZE, off, chunk):
-    posx = int(int(pos[0] / 2) % CHUNK_SIZE)
-    posy = int(int(pos[1] / 2) / CHUNK_SIZE)
-    print(posx, posy)
-    for a in chunk:
-        if a[0] == [posx + off[0], posy + off[1]]:
-            return chunk.index(a)
