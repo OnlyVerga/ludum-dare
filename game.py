@@ -6,6 +6,7 @@ WIN_DIM = (600, 400)
 
 window = pygame.display.set_mode(WIN_DIM)
 display = pygame.Surface((WIN_DIM[0] / 2, WIN_DIM[1] / 2))
+pygame.display.set_caption("ldum dare")
 
 e.load_animations("data/graphics/")
 
@@ -30,11 +31,11 @@ map = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
 
-tile_coll = [pygame.Rect((0, 200, 300, 1))]
+tile_coll = [pygame.Rect((-50, 200, 400, 1)), pygame.Rect((160, 176, 16, 16))]
 
 while True:
     #       event handling
@@ -48,9 +49,11 @@ while True:
             if event.key == pygame.K_d:
                 right = True
             if event.key == pygame.K_SPACE:
-                if event.key == pygame.K_SPACE:
-                    if air_time < 4:
-                        gravity = -5
+                if air_time < 4:
+                    gravity = -6
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
@@ -59,12 +62,14 @@ while True:
                 right = False
 
     #       moving player
+        #   x axis
     player_movement = [0, 0]
     if right:
         player_movement[0] += 2
     if left:
         player_movement[0] -= 2
 
+        #   y axis
     player_movement[1] += gravity
     gravity += 0.3
     if gravity > 3:
@@ -78,7 +83,6 @@ while True:
     else:
         air_time += 1
 
-    #       TODO: debug run anim
     #       setting player anim
     if player_movement[0] == 0:
         player.set_action('idle')
@@ -88,6 +92,8 @@ while True:
     if player_movement[0] < 0:
         player.set_flip(False)
         player.set_action('run')
+    if gravity > 1:
+        player.set_action("falling")
 
     #       blitting
     for a in range(len(map)):
@@ -98,5 +104,6 @@ while True:
                 pygame.draw.rect(display, (0, 0, 255), (16 * b, 16 * a, 16, 16))
 
     player.display(display, [0, 0])
+    player.change_frame(1)
     window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
     pygame.display.update()
