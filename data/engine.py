@@ -424,3 +424,19 @@ def generate_chunk(x,y, CHUNK_SIZE, offset = 0.1, multiplier = 5):
             if tile_type != 0:
                 chunk_data.append([[target_x,target_y],tile_type])
     return chunk_data
+
+global level_path
+level_path = ""
+
+def load_levels(path):
+    global level_path
+    level_path = path
+
+def level(level):
+    total_path = level_path + "level_" + str(level) + ".txt"
+    with open(total_path, "r") as f:
+        data = f.read()
+    data = data.split("\n")
+    for a in range(len(data)):
+        data[a] = [int(num) for num in data[a]]
+    return data
