@@ -263,7 +263,7 @@ class entity(object):
             if self.alpha != None:
                 image_to_render.set_alpha(self.alpha)
             blit_center(surface,image_to_render,(int(self.x)-scroll[0]+self.offset[0]+center_x,int(self.y)-scroll[1]+self.offset[1]+center_y), self.scale)
- 
+
 # animation stuff
 
 global animation_database

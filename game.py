@@ -1,14 +1,14 @@
-import pygame
-import data.engine as e
 from objects import *
-import sys
+
+clock = pygame.time.Clock()
 
 WIN_DIM = (608, 416)
 DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
 
 window = pygame.display.set_mode(WIN_DIM)
 display = pygame.Surface(DISP_DIM)
-pygame.display.set_caption("ldum dare")
+pygame.display.set_caption("ludum dare")
+life = pygame.image.load("data/graphics/life.png")
 
 e.load_animations("data/graphics/")
 e.load_levels("data/levels/")
@@ -22,6 +22,7 @@ right = False
 gravity = 0
 air_time = 0
 done = False
+lives = 10
 
 platforms = []
 #       setting up map and other stuff
@@ -31,17 +32,20 @@ tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)), pygame.Rect(
 for a in range(0, len(map)):
     for b in range(0, len(map[0])):
         if map[a][b] == 1:
-            platform = Platform(b * 16, a * 16, "red")
+            platform = Platform(b * 16, a * 16, e.red)
             platforms.append(platform)
             tile_coll.append(platform.collider)
         if map[a][b] == 2:
-            platform = Half_Platform(b * 16, a * 16, "red")
+            platform = Half_Platform(b * 16, a * 16, e.blue)
             platforms.append(platform)
             tile_coll.append(platform.collider)
         if map[a][b] == 3:
-            platform = Half_Platform(b * 16, a * 16 + 8, "red")
+            platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
             platforms.append(platform)
             tile_coll.append(platform.collider)
+        if map[a][b] == 4:
+            platform = Spike(b * 16, a * 16 + 8, e.green)
+            platforms.append(platform)
 
 while True:
     display.fill(e.black)
@@ -91,6 +95,9 @@ while True:
     else:
         air_time += 1
 
+    if coll["top"]:
+        gravity = 0
+
     if not done and player.x >=DISP_DIM[0]:
         player.set_pos(0, DISP_DIM[1] - 13)
 
@@ -106,9 +113,23 @@ while True:
     if gravity > 1:
         player.set_action("falling")
 
+    for a in platforms:
+        if a.type == "spike":
+            if a.collide(player):
+                if lives >= 1:
+                    lives -= 1
+                    player.set_pos(0, DISP_DIM[1] - 13)
+                else:
+                    gameover()
+
     #       blitting
     for a in platforms:
         a.blit(display)
+
+    for a in range(lives):
+        display.blit(life, (13 * a, 0))
+
+    clock.tick(60)
     player.display(display, [0, 0])
     player.change_frame(1)
     window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
