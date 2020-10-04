@@ -2,6 +2,34 @@ from objects import *
 
 clock = pygame.time.Clock()
 
+def reset(map):
+    global platforms
+    global tile_coll
+    platforms = []
+    tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)),
+                 pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
+
+    for a in range(0, len(map)):
+        for b in range(0, len(map[0])):
+            if map[a][b] == 1:
+                platform = Platform(b * 16, a * 16, e.red)
+                platforms.append(platform)
+                tile_coll.append(platform.collider)
+            if map[a][b] == 2:
+                platform = Half_Platform(b * 16, a * 16, e.blue)
+                platforms.append(platform)
+                tile_coll.append(platform.collider)
+            if map[a][b] == 3:
+                platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
+                platforms.append(platform)
+                tile_coll.append(platform.collider)
+            if map[a][b] == 4:
+                platform = Spike(b * 16, a * 16 + 8, e.green)
+                platforms.append(platform)
+            if map[a][b] == 5:
+                platform = Key(b * 16, a * 16)
+                platforms.append(platform)
+
 WIN_DIM = (608, 416)
 DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
 
@@ -24,28 +52,14 @@ air_time = 0
 done = False
 lives = 10
 
-platforms = []
 #       setting up map and other stuff
-map = e.level("1")
-tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
+global platforms
+platforms = []
 
-for a in range(0, len(map)):
-    for b in range(0, len(map[0])):
-        if map[a][b] == 1:
-            platform = Platform(b * 16, a * 16, e.red)
-            platforms.append(platform)
-            tile_coll.append(platform.collider)
-        if map[a][b] == 2:
-            platform = Half_Platform(b * 16, a * 16, e.blue)
-            platforms.append(platform)
-            tile_coll.append(platform.collider)
-        if map[a][b] == 3:
-            platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
-            platforms.append(platform)
-            tile_coll.append(platform.collider)
-        if map[a][b] == 4:
-            platform = Spike(b * 16, a * 16 + 8, e.green)
-            platforms.append(platform)
+map = e.level("1")
+global tile_coll
+tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
+reset(map)
 
 while True:
     display.fill(e.black)
@@ -98,8 +112,13 @@ while True:
     if coll["top"]:
         gravity = 0
 
-    if not done and player.x >=DISP_DIM[0]:
-        player.set_pos(0, DISP_DIM[1] - 13)
+    if player.x >=DISP_DIM[0]:
+        if not done:
+            player.set_pos(0, DISP_DIM[1] - 13)
+        if done:
+            map = e.level("2")
+            reset(map)
+            done = False
 
     #       setting player anim
     if player_movement[0] == 0:
@@ -114,6 +133,13 @@ while True:
         player.set_action("falling")
 
     for a in platforms:
+        if a.type == "key":
+            if not done:
+                a.blit(display)
+            if a.collide(player):
+                done = True
+        else:
+            a.blit(display)
         if a.type == "spike":
             if a.collide(player):
                 if lives >= 1:
@@ -121,10 +147,6 @@ while True:
                     player.set_pos(0, DISP_DIM[1] - 13)
                 else:
                     gameover()
-
-    #       blitting
-    for a in platforms:
-        a.blit(display)
 
     for a in range(lives):
         display.blit(life, (13 * a, 0))

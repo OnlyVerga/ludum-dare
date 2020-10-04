@@ -36,5 +36,21 @@ class Spike(Half_Platform):
         if player.obj.rect.colliderect(self.collider):
             return True
 
+class Key:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.collider = pygame.Rect((self.x, self.y, 16, 16))
+        self.type = "key"
+        self.img = e.entity(x, y, 16, 16, self.type)
+
+    def collide(self, player):
+        if player.obj.rect.colliderect(self.collider):
+            return True
+
+    def blit(self, display):
+        self.img.display(display, [0, 0])
+        self.img.change_frame(1)
+
 def gameover():
     pass

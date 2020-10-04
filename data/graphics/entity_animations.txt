@@ -2,3 +2,4 @@ player/idle/ 1 loop
 player/run/ 6;6;6;6 loop
 player/falling/ 10;10 loop
 player/die/ 10;10;10 loop
+key/idle/ 13;13 loop
