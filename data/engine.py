@@ -442,5 +442,5 @@ def level(level):
         data = f.read()
     data = data.split("\n")
     for a in range(len(data)):
-        data[a] = [int(num) for num in data[a]]
+        data[a] = [num for num in data[a]]
     return data

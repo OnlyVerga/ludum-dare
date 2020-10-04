@@ -11,22 +11,22 @@ def reset(map):
 
     for a in range(0, len(map)):
         for b in range(0, len(map[0])):
-            if map[a][b] == 1:
+            if map[a][b] == "1":
                 platform = Platform(b * 16, a * 16, e.red)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == 2:
+            if map[a][b] == "2":
                 platform = Half_Platform(b * 16, a * 16, e.blue)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == 3:
+            if map[a][b] == "3":
                 platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == 4:
+            if map[a][b] == "4":
                 platform = Spike(b * 16, a * 16 + 8, e.green)
                 platforms.append(platform)
-            if map[a][b] == 5:
+            if map[a][b] == "5":
                 platform = Key(b * 16, a * 16)
                 platforms.append(platform)
 
@@ -51,12 +51,13 @@ gravity = 0
 air_time = 0
 done = False
 lives = 10
+current_level = 1
 
 #       setting up map and other stuff
 global platforms
 platforms = []
 
-map = e.level("1")
+map = e.level(current_level)
 global tile_coll
 tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
 reset(map)
@@ -116,7 +117,8 @@ while True:
         if not done:
             player.set_pos(0, DISP_DIM[1] - 13)
         if done:
-            map = e.level("2")
+            current_level += 1
+            map = e.level(current_level)
             reset(map)
             done = False
 
