@@ -291,8 +291,12 @@ def animation_sequence(sequence,base_path,colorkey=(255,255,255),transparency=25
 def get_frame(ID):
     global animation_database
     return animation_database[ID]
+
+global animation_folder
  
 def load_animations(path):
+    global animation_folder
+    animation_folder = path
     global animation_higher_database, e_colorkey
     f = open(path + 'entity_animations.txt','r')
     data = f.read()

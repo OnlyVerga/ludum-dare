@@ -2,8 +2,6 @@ import pygame
 import data.engine as e
 import sys
 
-#       TODO: add color distinction between platforms
-
 class Platform:
     def __init__(self, x, y, color):
         self.x = x
@@ -11,9 +9,10 @@ class Platform:
         self.color = color
         self.collider = pygame.Rect((self.x, self.y, 16, 16))
         self.type = "platform"
+        self.img = pygame.image.load(e.animation_folder + self.type +".png")
 
     def blit(self, display):
-        pygame.draw.rect(display, self.color, self.collider)
+        display.blit(self.img, (self.x, self.y))
 
     def move(self, x, y):
         self.x -= x
@@ -23,12 +22,15 @@ class Half_Platform(Platform):
     def __init__(self, x, y, color):
         super().__init__(x,y, color)
         self.collider = pygame.Rect((self.x, self.y, 16, 8))
-        self.type = "half platform"
+        self.type = "half_platform"
+        self.img = pygame.image.load(e.animation_folder + self.type +".png")
 
 class Spike(Half_Platform):
     def __init__(self, x, y, color):
         super().__init__(x, y, color)
         self.type = "spike"
+        self.img = pygame.image.load(e.animation_folder + self.type + ".png")
+        self.img.set_colorkey(e.white)
 
     def collide(self, player):
         if player.obj.rect.colliderect(self.collider):
