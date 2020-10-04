@@ -1,12 +1,19 @@
 from objects import *
 
+pygame.init()
+pygame.font.init()
+
+font = pygame.font.SysFont("Verdana.ttf", 10)
 clock = pygame.time.Clock()
 
+WIN_DIM = (608, 416)
+DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
+
+#       change the level map and collision list
 def reset(map):
-    global platforms
-    global tile_coll
+    global platforms, tile_coll
     platforms = []
-    tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)),
+    tile_coll = [pygame.Rect((0, DISP_DIM[1], DISP_DIM[0], 1)),
                  pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
 
     for a in range(0, len(map)):
@@ -30,9 +37,7 @@ def reset(map):
                 platform = Key(b * 16, a * 16)
                 platforms.append(platform)
 
-WIN_DIM = (608, 416)
-DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
-
+#       setup basic stuff
 window = pygame.display.set_mode(WIN_DIM)
 display = pygame.Surface(DISP_DIM)
 pygame.display.set_caption("ludum dare")
@@ -41,6 +46,7 @@ life = pygame.image.load("data/graphics/life.png")
 e.load_animations("data/graphics/")
 e.load_levels("data/levels/")
 
+#       player / level related stuff
 x = 0
 y = DISP_DIM[1] - 13
 player = e.entity(x, y, 13, 13, "player")
@@ -54,12 +60,8 @@ lives = 10
 current_level = 1
 
 #       setting up map and other stuff
-global platforms
-platforms = []
-
+global platforms, tile_coll
 map = e.level(current_level)
-global tile_coll
-tile_coll = [pygame.Rect((-50, DISP_DIM[1], DISP_DIM[0] + 100, 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
 reset(map)
 
 while True:
@@ -102,7 +104,8 @@ while True:
     if gravity > 3:
         gravity = 3
 
-    #       moving and checking for touching the ground
+
+    #       moving and checking for touching the ground or roof
     coll = player.move(player_movement, tile_coll)
     if coll['bottom']:
         air_time = 0
@@ -113,6 +116,7 @@ while True:
     if coll["top"]:
         gravity = 0
 
+    #       stuck in a loop implementation
     if player.x >=DISP_DIM[0]:
         if not done:
             player.set_pos(0, DISP_DIM[1] - 13)
@@ -134,6 +138,7 @@ while True:
     if gravity > 1:
         player.set_action("falling")
 
+    #       blitting
     for a in platforms:
         if a.type == "key":
             if not done:
@@ -150,11 +155,16 @@ while True:
                 else:
                     gameover()
 
+    #       blit lives
     for a in range(lives):
         display.blit(life, (13 * a, 0))
 
-    clock.tick(60)
     player.display(display, [0, 0])
     player.change_frame(1)
+
+    #       rendering
+    text = font.render("level: " + str(current_level), False, e.black)
+    display.blit(text, (DISP_DIM[0] - text.get_width(),0))
     window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
     pygame.display.update()
+    clock.tick(60)
