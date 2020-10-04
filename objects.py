@@ -2,7 +2,7 @@ import pygame
 import data.engine as e
 import sys
 
-color = e.red
+color = e.blue
 
 class Platform:
     def __init__(self, x, y, color):

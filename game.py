@@ -4,6 +4,7 @@ pygame.init()
 pygame.font.init()
 
 font = pygame.font.SysFont("Verdana.ttf", 10)
+big_font = pygame.font.SysFont("Verdana.ttf", 30)
 clock = pygame.time.Clock()
 
 WIN_DIM = (608, 416)
@@ -41,9 +42,42 @@ def reset(map):
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
             elif map[a][b] == "7":
-                platform = Colored(b * 16, a * 16 + 8, e.red, "red")
+                platform = Colored(b * 16, a * 16, e.red, "red")
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
+
+def intro():
+    text = big_font.render("GAME NAME", False, e.green)
+    intro_text = font.render("Start", False, e.green)
+    tut_text = font.render("tutorial", False, e.green)
+    butt = pygame.Rect(((DISP_DIM[0] - 100)/ 2, 100, 100, 40))
+    tut = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
+    while True:
+        display.fill(e.black)
+        realpos = [0, 0]
+        #       event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                realpos[0] = pos[0] / 2
+                realpos[1] = pos[1] / 2
+        if butt.collidepoint(realpos):
+            return 0
+        if tut.collidepoint(realpos):
+            return 0
+
+        display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
+        pygame.draw.rect(display, e.red, butt)
+        pygame.draw.rect(display, e.red, tut)
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 120))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 180))
+
+        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+        pygame.display.update()
+
 
 #       setup basic stuff
 window = pygame.display.set_mode(WIN_DIM)
@@ -71,6 +105,8 @@ current_level = 1
 global platforms, tile_coll
 map = e.level(current_level)
 reset(map)
+
+intro()
 
 while True:
     display.fill(e.black)
@@ -130,8 +166,8 @@ while True:
         if done:
             current_level += 1
             map = e.level(current_level)
-            reset(map)
             done = False
+            reset(map)
 
     #       setting player anim
     if player_movement[0] == 0:
@@ -162,9 +198,6 @@ while True:
                 else:
                     gameover()
 
-        if a.type == "red" or a.type == "blue":
-            if color != a.type:
-                del tile_coll[platforms.index(a) + 2]
 
     #       blit lives
     for a in range(lives):
