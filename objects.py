@@ -2,6 +2,8 @@ import pygame
 import data.engine as e
 import sys
 
+color = e.red
+
 class Platform:
     def __init__(self, x, y, color):
         self.x = x
@@ -54,4 +56,18 @@ class Key:
 
 def gameover():
     pass
+
+class Colored(Platform):
+    def __init__(self, x, y, color, type):
+        super().__init__(x, y, color)
+        self.color = color
+        self.type = type
+        self.img = pygame.image.load(e.animation_folder + self.type + ".png")
+        self.transparent = pygame.image.load(e.animation_folder + self.type + "_transparent.png")
+
+    def blit(self, display):
+        if color == self.color:
+            display.blit(self.img, (self.x, self.y))
+        else:
+            display.blit(self.transparent, (self.x, self.y))
 

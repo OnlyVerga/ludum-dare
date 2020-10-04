@@ -22,20 +22,28 @@ def reset(map):
                 platform = Platform(b * 16, a * 16, e.red)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == "2":
+            elif map[a][b] == "2":
                 platform = Half_Platform(b * 16, a * 16, e.blue)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == "3":
+            elif map[a][b] == "3":
                 platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
                 platforms.append(platform)
                 tile_coll.append(platform.collider)
-            if map[a][b] == "4":
+            elif map[a][b] == "4":
                 platform = Spike(b * 16, a * 16 + 8, e.green)
                 platforms.append(platform)
-            if map[a][b] == "5":
+            elif map[a][b] == "5":
                 platform = Key(b * 16, a * 16)
                 platforms.append(platform)
+            elif map[a][b] == "6":
+                platform = Colored(b * 16, a * 16, e.blue, "blue")
+                platforms.append(platform)
+                tile_coll.append(platform.collider)
+            elif map[a][b] == "7":
+                platform = Colored(b * 16, a * 16 + 8, e.red, "red")
+                platforms.append(platform)
+                tile_coll.append(platform.collider)
 
 #       setup basic stuff
 window = pygame.display.set_mode(WIN_DIM)
@@ -104,7 +112,6 @@ while True:
     if gravity > 3:
         gravity = 3
 
-
     #       moving and checking for touching the ground or roof
     coll = player.move(player_movement, tile_coll)
     if coll['bottom']:
@@ -154,6 +161,10 @@ while True:
                     player.set_pos(0, DISP_DIM[1] - 13)
                 else:
                     gameover()
+
+        if a.type == "red" or a.type == "blue":
+            if color != a.type:
+                del tile_coll[platforms.index(a) + 2]
 
     #       blit lives
     for a in range(lives):
