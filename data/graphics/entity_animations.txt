@@ -3,3 +3,5 @@ player/run/ 6;6;6;6 loop
 player/falling/ 10;10 loop
 player/die/ 10;10;10 loop
 key/idle/ 13;13 loop
+window/idle/ 10;10;10 loop
+window/light/ 10;10;10 loop
