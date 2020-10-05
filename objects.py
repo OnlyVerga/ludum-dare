@@ -55,9 +55,6 @@ class Key:
         self.img.display(display, [0, 0])
         self.img.change_frame(1)
 
-def gameover():
-    pass
-
 class Colored(Platform):
     def __init__(self, x, y, color, type):
         super().__init__(x, y, color)

@@ -73,6 +73,36 @@ def reset(map):
                 tile_coll.append(platform.collider)
 reset(map)
 
+#       tutorial loop
+def tut():
+    bg = pygame.image.load("data/graphics/bg_intro.png")
+    text1 = font.render("The old wizard made a magic that ", False, e.green)
+    text2 = font.render("created a space loop in all the rooms of his tower", False, e.green)
+    text3 = font.render("Help him to escape by collecting the key in each level", False, e.green)
+    text4 = font.render("Move with WASD, jump with SPACE", False, e.green)
+    text5 = font.render("Avoid the spikes or you will lose a life!", False, e.green)
+    text6 = font.render("Press SPACE to return to main menu", False, e.green)
+    off = DISP_DIM[1] / 2 - 33
+    while True:
+        display.fill(e.red)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return 0
+
+        display.blit(bg, [0, 0])
+        display.blit(text1, ((DISP_DIM[0] - text1.get_width()) / 2, 0 + off))
+        display.blit(text2, ((DISP_DIM[0] - text2.get_width()) / 2, 11 + off))
+        display.blit(text3, ((DISP_DIM[0] - text3.get_width()) / 2, 22 + off))
+        display.blit(text4, ((DISP_DIM[0] - text4.get_width()) / 2, 33 + off))
+        display.blit(text5, ((DISP_DIM[0] - text5.get_width()) / 2, 44 + off))
+        display.blit(text6, ((DISP_DIM[0] - text6.get_width()) / 2, 55 + off))
+        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+        pygame.display.update()
+
 #       main menu function and loop
 def intro():
     text = big_font.render("GAME NAME", False, e.green)
@@ -85,6 +115,65 @@ def intro():
     win = e.entity(23, 100, 1, 1, "window")
     win.set_action("idle")
     count = 0
+    while True:
+        realpos = [0, 0]
+        #       event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            realpos[0] = pos[0] / 2
+            realpos[1] = pos[1] / 2
+
+        if butt_coll.collidepoint(realpos):
+            return 0
+        if tut_coll.collidepoint(realpos):
+            tut()
+
+        if count == 0:
+            if random.random() <= 0.005:
+                win.set_action("light")
+        if win.action == "light":
+            count += 1
+        if count == 30:
+            count = 0
+            win.set_action("idle")
+
+        display.blit(bg, [0,0])
+        display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
+        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 100])
+        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 160])
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 120))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 180))
+        win.display(display, [0, 0])
+        win.change_frame(1)
+
+        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+        pygame.display.update()
+
+#       gameover loop
+def gameover():
+    global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
+    x = 0
+    y = DISP_DIM[1] - 13
+    player.set_flip(True)
+    left = False
+    right = False
+    gravity = 0
+    air_time = 0
+    done = False
+    lives = 10
+    current_level = 1
+    text = big_font.render("Game Over", False, e.green)
+    intro_text = font.render("Play again", False, e.green)
+    tut_text = font.render("Quit", False, e.green)
+    butt_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 100, 100, 40))
+    quit_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
+    butt = pygame.image.load("data/graphics/butt.png")
+    bg = pygame.image.load("data/graphics/bg_intro.png")
+
     while True:
         display.fill(e.black)
         realpos = [0, 0]
@@ -99,28 +188,16 @@ def intro():
             realpos[1] = pos[1] / 2
         if butt_coll.collidepoint(realpos):
             return 0
-        if tut_coll.collidepoint(realpos):
-            return 0
+        if quit_coll.collidepoint(realpos):
+            pygame.quit()
+            sys.exit()
 
-        if count == 0:
-            if random.random() <= 0.005:
-                win.set_action("light")
-
-        if win.action == "light":
-            count += 1
-
-        if count == 30:
-            count = 0
-            win.set_action("idle")
-
-        display.blit(bg, [0,0])
+        display.blit(bg, [0, 0])
         display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
-        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 100])
-        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 160])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 100])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 160])
         display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 120))
         display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 180))
-        win.display(display, [0, 0])
-        win.change_frame(1)
 
         window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
         pygame.display.update()
@@ -235,4 +312,3 @@ def main():
 if __name__ == "__main__":
     intro()
     main()
-
