@@ -1,4 +1,4 @@
-from objects import *
+from data.objects import *
 
 pygame.init()
 pygame.font.init()
