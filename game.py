@@ -2,7 +2,7 @@ from data.objects import *
 
 #       player / level related stuff
 global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
-
+onB = []
 x = 0
 y = DISP_DIM[1] - 13
 player = e.entity(x, y, 13, 13, "player")
@@ -15,17 +15,20 @@ done = False
 lives = 10
 current_level = 1
 text_color = (255, 0, 0)
-total_levels = 3
+bg = pygame.image.load("data/graphics/bg_intro.png")
+
 #       setting up map and other stuff
 map = e.level(current_level)
-
 
 #       change the level map and collision list
 def reset(map):
     global platforms, tile_coll
     platforms = []
     global onB
+    onB = []
     count = 0
+    for b in onB:
+        b.active = False
 
     for a in range(0, len(map)):
         for b in range(0, len(map[0])):
@@ -56,13 +59,14 @@ def reset(map):
                 platform = Movable(b * 16, a * 16)
                 buffer = platform
                 platforms.append(platform)
-            elif map[a][b] == "A":
-                buffer.end = (b * 16, a * 16)
             elif map[a][b] == "B":
                 platform = Button(b * 16, a * 16)
-                onB = onButton(b * 16, a * 16)
+                onB.append(onButton(b * 16, a * 16))
+                print("added")
                 buffer = platform
                 platforms.append(platform)
+            elif map[a][b] == "A":
+                buffer.end = (b * 16, a * 16)
 reset(map)
 
 #       tutorial loop
@@ -78,7 +82,7 @@ def tut():
     text8 = font.render("and created a space-time loop.", False, e.green)
     text9 = font.render("Help him to escape by collecting", False, e.green)
     text10 = font.render("the magic book in each level", False, e.green)
-    text11 = font.render("Move with WASD, jump with SPACE", False, e.green)
+    text11 = font.render("Move with A and D, jump with SPACE", False, e.green)
     text12 = font.render("Be careful not to touch the spikes", False, e.green)
     text13 = font.render("Or you will lose a soul fragment", False, e.green)
     text14 = font.render("Press SPACE to return to main menu", False, e.green)
@@ -113,13 +117,13 @@ def tut():
 
 #       main menu function and loop
 def intro():
-    text = big_font.render("MAGIC RUSH", False, text_color)
+    candle = e.entity(DISP_DIM[0] / 2 - 13, 0, 0, 0, "candle")
+    text = big_font.render("Magic Rush", False, text_color)
     intro_text = font.render("Start", False, text_color)
     tut_text = font.render("tutorial", False, text_color)
-    butt_coll = pygame.Rect(((DISP_DIM[0] - 100)/ 2, 100, 100, 40))
+    butt_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 100, 100, 40))
     tut_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
     butt = pygame.image.load("data/graphics/butt.png")
-    bg = pygame.image.load("data/graphics/bg_intro.png")
     win = e.entity(23, 100, 1, 1, "window")
     win.set_action("idle")
     count = 0
@@ -150,12 +154,16 @@ def intro():
             count = 0
             win.set_action("idle")
 
-        display.blit(bg, [0,0])
+
+
+        display.blit(bg, [0, 0])
         display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
-        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 100])
-        display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 160])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 100])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 160])
         display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 112))
         display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 172))
+        candle.display(display, [0, 0])
+        candle.change_frame(1)
         win.display(display, [0, 0])
         win.change_frame(1)
 
@@ -265,8 +273,6 @@ def end():
         pygame.display.update()
 
 intro()
-
-
 active_color = e.blue
 
 #       main loop
@@ -317,6 +323,14 @@ while True:
             if a.type in ("red", "blue"):
                 if a.active:
                     tile_coll.append(a.collider)
+            elif a.type == "movable":
+                if player.x >= a.x - 16 and player.x <= a.x + 16 and player.y <= a.y - 11 and player.y >= a.y - 15:  # <----------!!!Inserire condizione per capire se il player è sulla piattaforma
+                    if a.dire == "r":
+                        player_movement[0] += 1
+                    else:
+                        player_movement[0] -= 1
+                player.set_action("idle")
+                tile_coll.append(a.collider)
             else:
                 tile_coll.append(a.collider)
 
@@ -337,6 +351,7 @@ while True:
             player.set_pos(0, DISP_DIM[1] - 13)
         if done:
             current_level += 1
+            active_color = e.blue
             if current_level <= total_levels:
                 map = e.level(current_level)
                 done = False
@@ -356,14 +371,15 @@ while True:
         player.set_action('run')
     if gravity > 1:
         player.set_action("falling")
-    try:
-        if onB.collide(player):
-            if active_color == e.red:
-                active_color = e.blue
-            else:
-                active_color = e.red
-    except:
-        pass
+    for B in onB:
+        try:
+            if B.collide(player) and gravity > 0:
+                if active_color == e.red:
+                    active_color = e.blue
+                else:
+                    active_color = e.red
+        except:
+            pass
     #       blitting
     for a in platforms:
         if a.type == "key":
@@ -380,9 +396,11 @@ while True:
                 if lives >= 1:
                     lives -= 1
                     player.set_pos(0, DISP_DIM[1] - 13)
+                    active_color = e.blue
+                    done = False
                 else:
                     gameover()
-                active_color = e.blue
+                    active_color = e.blue
 
         if a.type == "movable":
             a.move()

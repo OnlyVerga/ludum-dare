@@ -28,6 +28,8 @@ life = pygame.image.load("data/graphics/life.png")
 e.load_animations("data/graphics/")
 e.load_levels("data/levels/")
 
+total_levels = 10
+
 #active_color = e.blue
 
 class Platform:
@@ -101,7 +103,7 @@ class Button(Half_Platform):
         self.color=e.grey
         self.collider = pygame.Rect((self.x, self.y+8, 16, 8))
         self.type = "button"
-        self.img = pygame.image.load(e.animation_folder + "half_platform.png")
+        self.img = pygame.image.load(e.animation_folder + self.type + ".png")
         self.checker = False
 
     def blit(self, display):
@@ -131,21 +133,30 @@ class Movable(Half_Platform):
         self.end = (0, 0)
         self.dir = "to_end"
         self.type = "movable"
+        self.dire = "r"
 
     def move(self):
         self.collider = pygame.Rect((self.x, self.y, 16, 8))
         if self.dir == "to_end":
             if self.end[0] > self.x:
                 self.x += 1
+                self.dire="r"
             if self.end[0] < self.x:
                 self.x -= 1
+                self.dire = "l"
             if self.end[0] == self.x:
                 self.dir = "to_start"
 
         if self.dir == "to_start":
             if self.start[0] > self.x:
                 self.x += 1
+                self.dire = "r"
             if self.start[0] < self.x:
                 self.x -= 1
+                self.dire = "l"
             if self.start[0] == self.x:
                 self.dir = "to_end"
+
+    def collide(self, player):
+        if player.obj.rect.colliderect(self.collider):
+            return True

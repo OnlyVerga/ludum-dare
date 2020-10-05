@@ -5,3 +5,4 @@ key/idle/ 13;13 loop
 window/idle/ 10;10;10 loop
 window/light/ 10;10;10 loop
 spike/idle/ 13;13 loop
+candle/idle/ 17;17;17;17 loop
