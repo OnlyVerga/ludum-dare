@@ -2,10 +2,16 @@ from data.objects import *
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.set_num_channels(64)
 
 font = pygame.font.Font("data/fonts/Silver.ttf", 20)
 big_font = pygame.font.Font("data/fonts/Silver.ttf", 50)
 clock = pygame.time.Clock()
+main_theme = pygame.mixer.Sound('data/audio/main_theme.wav')
+main_theme.play(-1)
+
+thunder_sound = pygame.mixer.Sound('data/audio/lightning.wav')
+#exit_level = pygame.mixer.Sound('data/audio/change_scene.wav')
 
 WIN_DIM = (608, 416)
 DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
@@ -20,6 +26,7 @@ e.load_levels("data/levels/")
 
 #       player / level related stuff
 global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
+
 x = 0
 y = DISP_DIM[1] - 13
 player = e.entity(x, y, 13, 13, "player")
@@ -32,7 +39,6 @@ done = False
 lives = 10
 current_level = 1
 text_color = (255, 0, 0)
-
 #       setting up map and other stuff
 map = e.level(current_level)
 
@@ -41,7 +47,7 @@ map = e.level(current_level)
 def reset(map):
     global platforms, tile_coll
     platforms = []
-
+    global onB
     count = 0
 
     for a in range(0, len(map)):
@@ -75,6 +81,11 @@ def reset(map):
                 platforms.append(platform)
             elif map[a][b] == "A":
                 buffer.end = (b * 16, a * 16)
+            elif map[a][b] == "B":
+                platform = Button(b * 16, a * 16)
+                onB = onButton(b * 16, a * 16)
+                buffer = platform
+                platforms.append(platform)
 reset(map)
 
 #       tutorial loop
@@ -154,6 +165,7 @@ def intro():
 
         if count == 0:
             if random.random() <= 0.005:
+                thunder_sound.play()
                 win.set_action("light")
         if win.action == "light":
             count += 1
@@ -277,6 +289,9 @@ def end():
 
 intro()
 
+
+active_color = e.blue
+
 #       main loop
 while True:
     display.fill(e.black)
@@ -287,11 +302,11 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
+            if event.key in (pygame.K_a, pygame.K_LEFT):
                 left = True
-            if event.key == pygame.K_d:
+            if event.key in (pygame.K_d, pygame.K_RIGHT):
                 right = True
-            if event.key == pygame.K_SPACE:
+            if event.key in (pygame.K_SPACE, pygame.K_UP, pygame.K_w):
                 if air_time < 4:
                     gravity = -6
             if event.key == pygame.K_ESCAPE:
@@ -299,9 +314,9 @@ while True:
                 sys.exit()
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
+            if event.key in (pygame.K_a, pygame.K_LEFT):
                 left = False
-            if event.key == pygame.K_d:
+            if event.key in (pygame.K_d, pygame.K_RIGHT):
                 right = False
 
     #       moving player
@@ -322,7 +337,11 @@ while True:
     tile_coll = [pygame.Rect((0, DISP_DIM[1], DISP_DIM[0], 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
     for a in platforms:
         if a.type != "key" and a.type != "spike":
-            tile_coll.append(a.collider)
+            if a.type in ("red", "blue"):
+                if a.active:
+                    tile_coll.append(a.collider)
+            else:
+                tile_coll.append(a.collider)
 
     #       moving and checking for touching the ground or roof
     coll = player.move(player_movement, tile_coll)
@@ -347,6 +366,7 @@ while True:
                 reset(map)
             else:
                 end()
+                active_color = e.blue
 
     #       setting player anim
     if player_movement[0] == 0:
@@ -359,7 +379,14 @@ while True:
         player.set_action('run')
     if gravity > 1:
         player.set_action("falling")
-
+    try:
+        if onB.collide(player):
+            if active_color == e.red:
+                active_color = e.blue
+            else:
+                active_color = e.red
+    except:
+        pass
     #       blitting
     for a in platforms:
         if a.type == "key":
@@ -367,6 +394,8 @@ while True:
                 a.blit(display)
             if a.collide(player):
                 done = True
+        elif a.type in ("blue", "red"):
+            a.blit(display, active_color)
         else:
             a.blit(display)
         if a.type == "spike":
@@ -376,6 +405,7 @@ while True:
                     player.set_pos(0, DISP_DIM[1] - 13)
                 else:
                     gameover()
+                active_color = e.blue
 
         if a.type == "movable":
             a.move()

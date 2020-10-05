@@ -3,7 +3,8 @@ import data.engine as e
 import sys
 import random
 
-active_color = e.blue
+
+#active_color = e.blue
 
 class Platform:
     def __init__(self, x, y):
@@ -55,14 +56,46 @@ class Colored(Platform):
         super().__init__(x, y)
         self.color = color
         self.type = type
+        self.active=True
         self.img = pygame.image.load(e.animation_folder + self.type + ".png")
         self.transparent = pygame.image.load(e.animation_folder + self.type + "_transparent.png")
 
-    def blit(self, display):
+    def blit(self, display, active_color):
         if active_color == self.color:
             display.blit(self.img, (self.x, self.y))
+            self.active = True
         else:
             display.blit(self.transparent, (self.x, self.y))
+            self.active = False
+
+class Button(Half_Platform):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.color=e.grey
+        self.collider = pygame.Rect((self.x, self.y+8, 16, 8))
+        self.type = "button"
+        self.img = pygame.image.load(e.animation_folder + "half_platform.png")
+        self.checker = False
+
+    def blit(self, display):
+        display.blit(self.img, (self.x, self.y+8))
+
+class onButton():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.collider = pygame.Rect((self.x, self.y, 16, 8))
+        self.type = "onbutton"
+        self.checker = False
+
+    def collide(self, player):
+        if player.obj.rect.colliderect(self.collider) and not self.checker:
+            self.checker = True
+            return True
+        else:
+            if not player.obj.rect.colliderect(self.collider):
+                self.checker = False
+            return False
 
 class Movable(Half_Platform):
     def __init__(self, x, y):
