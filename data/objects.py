@@ -3,6 +3,30 @@ import data.engine as e
 import sys
 import random
 
+pygame.init()
+pygame.font.init()
+pygame.mixer.set_num_channels(64)
+
+font = pygame.font.Font("data/fonts/Silver.ttf", 20)
+big_font = pygame.font.Font("data/fonts/Silver.ttf", 50)
+clock = pygame.time.Clock()
+main_theme = pygame.mixer.Sound('data/audio/main_theme.wav')
+main_theme.play(-1)
+
+thunder_sound = pygame.mixer.Sound('data/audio/lightning.wav')
+#exit_level = pygame.mixer.Sound('data/audio/change_scene.wav')
+
+WIN_DIM = (608, 416)
+DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
+
+#       setup basic stuff
+window = pygame.display.set_mode(WIN_DIM)
+display = pygame.Surface(DISP_DIM)
+pygame.display.set_caption("Magic Rush")
+life = pygame.image.load("data/graphics/life.png")
+
+e.load_animations("data/graphics/")
+e.load_levels("data/levels/")
 
 #active_color = e.blue
 
@@ -28,12 +52,15 @@ class Spike(Half_Platform):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.type = "spike"
-        self.img = pygame.image.load(e.animation_folder + self.type + ".png")
-        self.img.set_colorkey(e.white)
+        self.img = e.entity(x,y, 16, 8, "spike")
 
     def collide(self, player):
         if player.obj.rect.colliderect(self.collider):
             return True
+
+    def blit(self, display):
+        self.img.display(display, [0, 0])
+        self.img.change_frame(1)
 
 class Key:
     def __init__(self, x, y):

@@ -1,4 +1,4 @@
-import pygame, math, os, random, noise
+import pygame, math, os, random
 from pygame.locals import *
 
 white = (255, 255, 255)
@@ -390,45 +390,6 @@ def swap_color(img,old_c,new_c):
     surf.blit(img,(0,0))
     surf.set_colorkey(e_colorkey)
     return surf
-
-def generate_flat_chunk(x,y, CHUNK_SIZE):
-    chunk_data = []
-    for y_pos in range(CHUNK_SIZE):
-        for x_pos in range(CHUNK_SIZE):
-            target_x = x * CHUNK_SIZE + x_pos
-            target_y = y * CHUNK_SIZE + y_pos
-            tile_type = 0 # nothing
-            if target_y > 10:
-                tile_type = 2 # dirt
-            elif target_y == 10:
-                tile_type = 1 # grass
-            elif target_y == 9:
-                if random.randint(1,5) == 1:
-                    tile_type = 3 # plant
-            if tile_type != 0:
-                chunk_data.append([[target_x,target_y],tile_type])
-    return chunk_data
-
-def generate_chunk(x,y, CHUNK_SIZE, offset = 0.1, multiplier = 5):
-    chunk_data = []
-    for y_pos in range(CHUNK_SIZE):
-        for x_pos in range(CHUNK_SIZE):
-            target_x = x * CHUNK_SIZE + x_pos
-            target_y = y * CHUNK_SIZE + y_pos
-            tile_type = 0 # nothing
-            off = int(noise.pnoise1(target_x * offset, repeat=9999999) * multiplier)
-            if target_y > 10 - off:
-                tile_type = 4 # stone
-            if target_y <= 10 - off + round(random.random()) and target_y > 8 - off:
-                tile_type = 2 # dirt
-            elif target_y == 8 - off:
-                tile_type = 1 # grass
-            elif target_y == 8 - off - 1:
-                if random.randint(1,5) == 1:
-                    tile_type = 3 # plant
-            if tile_type != 0:
-                chunk_data.append([[target_x,target_y],tile_type])
-    return chunk_data
 
 global level_path
 level_path = ""

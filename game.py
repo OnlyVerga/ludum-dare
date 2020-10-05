@@ -1,29 +1,5 @@
 from data.objects import *
 
-pygame.init()
-pygame.font.init()
-pygame.mixer.set_num_channels(64)
-
-font = pygame.font.Font("data/fonts/Silver.ttf", 20)
-big_font = pygame.font.Font("data/fonts/Silver.ttf", 50)
-clock = pygame.time.Clock()
-main_theme = pygame.mixer.Sound('data/audio/main_theme.wav')
-main_theme.play(-1)
-
-thunder_sound = pygame.mixer.Sound('data/audio/lightning.wav')
-#exit_level = pygame.mixer.Sound('data/audio/change_scene.wav')
-
-WIN_DIM = (608, 416)
-DISP_DIM = (WIN_DIM[0] / 2, WIN_DIM[1] / 2)
-
-#       setup basic stuff
-window = pygame.display.set_mode(WIN_DIM)
-display = pygame.Surface(DISP_DIM)
-pygame.display.set_caption("ludum dare")
-life = pygame.image.load("data/graphics/life.png")
-e.load_animations("data/graphics/")
-e.load_levels("data/levels/")
-
 #       player / level related stuff
 global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
 
@@ -39,6 +15,7 @@ done = False
 lives = 10
 current_level = 1
 text_color = (255, 0, 0)
+total_levels = 3
 #       setting up map and other stuff
 map = e.level(current_level)
 
@@ -136,7 +113,7 @@ def tut():
 
 #       main menu function and loop
 def intro():
-    text = big_font.render("GAME NAME", False, text_color)
+    text = big_font.render("MAGIC RUSH", False, text_color)
     intro_text = font.render("Start", False, text_color)
     tut_text = font.render("tutorial", False, text_color)
     butt_coll = pygame.Rect(((DISP_DIM[0] - 100)/ 2, 100, 100, 40))
@@ -360,7 +337,7 @@ while True:
             player.set_pos(0, DISP_DIM[1] - 13)
         if done:
             current_level += 1
-            if current_level <= 2:
+            if current_level <= total_levels:
                 map = e.level(current_level)
                 done = False
                 reset(map)
