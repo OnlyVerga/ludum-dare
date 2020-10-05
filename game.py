@@ -202,113 +202,109 @@ def gameover():
         window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
         pygame.display.update()
 
-#       main loop
-def main():
-    global right, left, gravity, air_time, player, done, lives, current_level
-    while True:
-        display.fill(e.black)
 
-        #       event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+intro()
+
+while True:
+    display.fill(e.black)
+
+    #       event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                left = True
+            if event.key == pygame.K_d:
+                right = True
+            if event.key == pygame.K_SPACE:
+                if air_time < 4:
+                    gravity = -6
+            if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    left = True
-                if event.key == pygame.K_d:
-                    right = True
-                if event.key == pygame.K_SPACE:
-                    if air_time < 4:
-                        gravity = -6
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_a:
-                    left = False
-                if event.key == pygame.K_d:
-                    right = False
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_a:
+                left = False
+            if event.key == pygame.K_d:
+                right = False
 
-        #       moving player
-        #   x axis
-        player_movement = [0, 0]
-        if right:
-            player_movement[0] += 2
-        if left:
-            player_movement[0] -= 2
+    #       moving player
+    #   x axis
+    player_movement = [0, 0]
+    if right:
+        player_movement[0] += 2
+    if left:
+        player_movement[0] -= 2
 
-            #   y axis
-        player_movement[1] += gravity
-        gravity += 0.3
-        if gravity > 3:
-            gravity = 3
+        #   y axis
+    player_movement[1] += gravity
+    gravity += 0.3
+    if gravity > 3:
+        gravity = 3
 
-        #       moving and checking for touching the ground or roof
-        coll = player.move(player_movement, tile_coll)
-        if coll['bottom']:
-            air_time = 0
-            gravity = 0
-        else:
-            air_time += 1
+    #       moving and checking for touching the ground or roof
+    coll = player.move(player_movement, tile_coll)
+    if coll['bottom']:
+        air_time = 0
+        gravity = 0
+    else:
+        air_time += 1
 
-        if coll["top"]:
-            gravity = 0
+    if coll["top"]:
+        gravity = 0
 
-        #       stuck in a loop implementation
-        if player.x >= DISP_DIM[0]:
+    #       stuck in a loop implementation
+    if player.x >= DISP_DIM[0]:
+        if not done:
+            player.set_pos(0, DISP_DIM[1] - 13)
+        if done:
+            current_level += 1
+            map = e.level(current_level)
+            done = False
+            reset(map)
+
+    #       setting player anim
+    if player_movement[0] == 0:
+        player.set_action('idle')
+    if player_movement[0] > 0:
+        player.set_flip(True)
+        player.set_action('run')
+    if player_movement[0] < 0:
+        player.set_flip(False)
+        player.set_action('run')
+    if gravity > 1:
+        player.set_action("falling")
+
+    #       blitting
+    for a in platforms:
+        if a.type == "key":
             if not done:
-                player.set_pos(0, DISP_DIM[1] - 13)
-            if done:
-                current_level += 1
-                map = e.level(current_level)
-                done = False
-                reset(map)
-
-        #       setting player anim
-        if player_movement[0] == 0:
-            player.set_action('idle')
-        if player_movement[0] > 0:
-            player.set_flip(True)
-            player.set_action('run')
-        if player_movement[0] < 0:
-            player.set_flip(False)
-            player.set_action('run')
-        if gravity > 1:
-            player.set_action("falling")
-
-        #       blitting
-        for a in platforms:
-            if a.type == "key":
-                if not done:
-                    a.blit(display)
-                if a.collide(player):
-                    done = True
-            else:
                 a.blit(display)
-            if a.type == "spike":
-                if a.collide(player):
-                    if lives >= 1:
-                        lives -= 1
-                        player.set_pos(0, DISP_DIM[1] - 13)
-                    else:
-                        gameover()
+            if a.collide(player):
+                done = True
+        else:
+            a.blit(display)
+        if a.type == "spike":
+            if a.collide(player):
+                if lives >= 1:
+                    lives -= 1
+                    player.set_pos(0, DISP_DIM[1] - 13)
+                else:
+                    gameover()
 
-        #       blit lives
-        for a in range(lives):
-            display.blit(life, (13 * a, 0))
+    #       blit lives
+    for a in range(lives):
+        display.blit(life, (13 * a, 0))
 
-        player.display(display, [0, 0])
-        player.change_frame(1)
+    player.display(display, [0, 0])
+    player.change_frame(1)
 
-        #       rendering
-        text = font.render("level: " + str(current_level), False, e.black)
-        display.blit(text, (DISP_DIM[0] - text.get_width(), 0))
-        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
-        pygame.display.update()
-        clock.tick(60)
-
-if __name__ == "__main__":
-    intro()
-    main()
+    #       rendering
+    text = font.render("level: " + str(current_level), False, e.black)
+    display.blit(text, (DISP_DIM[0] - text.get_width(), 0))
+    window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+    pygame.display.update()
+    clock.tick(60)
