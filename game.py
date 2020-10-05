@@ -3,8 +3,8 @@ from data.objects import *
 pygame.init()
 pygame.font.init()
 
-font = pygame.font.SysFont("Verdana.ttf", 10)
-big_font = pygame.font.SysFont("Verdana.ttf", 30)
+font = pygame.font.Font("data/fonts/Silver.ttf", 20)
+big_font = pygame.font.Font("data/fonts/Silver.ttf", 50)
 clock = pygame.time.Clock()
 
 WIN_DIM = (608, 416)
@@ -31,6 +31,7 @@ air_time = 0
 done = False
 lives = 10
 current_level = 1
+text_color = (255, 0, 0)
 
 #       setting up map and other stuff
 map = e.level(current_level)
@@ -40,25 +41,24 @@ map = e.level(current_level)
 def reset(map):
     global platforms, tile_coll
     platforms = []
-    tile_coll = [pygame.Rect((0, DISP_DIM[1], DISP_DIM[0], 1)),
-                 pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
+
+    count = 0
 
     for a in range(0, len(map)):
         for b in range(0, len(map[0])):
+            if map[a][b] != 0:
+                count += 1
             if map[a][b] == "1":
-                platform = Platform(b * 16, a * 16, e.red)
+                platform = Platform(b * 16, a * 16)
                 platforms.append(platform)
-                tile_coll.append(platform.collider)
             elif map[a][b] == "2":
-                platform = Half_Platform(b * 16, a * 16, e.blue)
+                platform = Half_Platform(b * 16, a * 16)
                 platforms.append(platform)
-                tile_coll.append(platform.collider)
             elif map[a][b] == "3":
-                platform = Half_Platform(b * 16, a * 16 + 8, e.blue)
+                platform = Half_Platform(b * 16, a * 16 + 8)
                 platforms.append(platform)
-                tile_coll.append(platform.collider)
             elif map[a][b] == "4":
-                platform = Spike(b * 16, a * 16 + 8, e.green)
+                platform = Spike(b * 16, a * 16 + 8)
                 platforms.append(platform)
             elif map[a][b] == "5":
                 platform = Key(b * 16, a * 16)
@@ -66,23 +66,35 @@ def reset(map):
             elif map[a][b] == "6":
                 platform = Colored(b * 16, a * 16, e.blue, "blue")
                 platforms.append(platform)
-                tile_coll.append(platform.collider)
             elif map[a][b] == "7":
                 platform = Colored(b * 16, a * 16, e.red, "red")
                 platforms.append(platform)
-                tile_coll.append(platform.collider)
+            elif map[a][b] == "9":
+                platform = Movable(b * 16, a * 16)
+                buffer = platform
+                platforms.append(platform)
+            elif map[a][b] == "A":
+                buffer.end = (b * 16, a * 16)
 reset(map)
 
 #       tutorial loop
 def tut():
     bg = pygame.image.load("data/graphics/bg_intro.png")
-    text1 = font.render("The old wizard made a magic that ", False, e.green)
-    text2 = font.render("created a space loop in all the rooms of his tower", False, e.green)
-    text3 = font.render("Help him to escape by collecting the key in each level", False, e.green)
-    text4 = font.render("Move with WASD, jump with SPACE", False, e.green)
-    text5 = font.render("Avoid the spikes or you will lose a life!", False, e.green)
-    text6 = font.render("Press SPACE to return to main menu", False, e.green)
-    off = DISP_DIM[1] / 2 - 33
+    text1 = font.render("An old wizard found an old and obscure book.", False, e.green)
+    text2 = font.render("As he read it he became obsessed about it,", False, e.green)
+    text3 = font.render("he became ancious and", False, e.green)
+    text4 = font.render("he was afraid that someone", False, e.green)
+    text5 = font.render("may steal it. One day he made", False, e.green)
+    text6 = font.render("a rare magic from the book.", False, e.green)
+    text7 = font.render("He was not able to contain it", False, e.green)
+    text8 = font.render("and created a space-time loop.", False, e.green)
+    text9 = font.render("Help him to escape by collecting", False, e.green)
+    text10 = font.render("the magic book in each level", False, e.green)
+    text11 = font.render("Move with WASD, jump with SPACE", False, e.green)
+    text12 = font.render("Be careful not to touch the spikes", False, e.green)
+    text13 = font.render("Or you will lose a soul fragment", False, e.green)
+    text14 = font.render("Press SPACE to return to main menu", False, e.green)
+    off = 0
     while True:
         display.fill(e.red)
         for event in pygame.event.get():
@@ -95,19 +107,27 @@ def tut():
 
         display.blit(bg, [0, 0])
         display.blit(text1, ((DISP_DIM[0] - text1.get_width()) / 2, 0 + off))
-        display.blit(text2, ((DISP_DIM[0] - text2.get_width()) / 2, 11 + off))
-        display.blit(text3, ((DISP_DIM[0] - text3.get_width()) / 2, 22 + off))
-        display.blit(text4, ((DISP_DIM[0] - text4.get_width()) / 2, 33 + off))
-        display.blit(text5, ((DISP_DIM[0] - text5.get_width()) / 2, 44 + off))
-        display.blit(text6, ((DISP_DIM[0] - text6.get_width()) / 2, 55 + off))
+        display.blit(text2, ((DISP_DIM[0] - text2.get_width()) / 2, 15 + off))
+        display.blit(text3, ((DISP_DIM[0] - text3.get_width()) / 2, 30 + off))
+        display.blit(text4, ((DISP_DIM[0] - text4.get_width()) / 2, 45 + off))
+        display.blit(text5, ((DISP_DIM[0] - text5.get_width()) / 2, 60 + off))
+        display.blit(text6, ((DISP_DIM[0] - text6.get_width()) / 2, 75 + off))
+        display.blit(text7, ((DISP_DIM[0] - text7.get_width()) / 2, 90 + off))
+        display.blit(text8, ((DISP_DIM[0] - text8.get_width()) / 2, 105 + off))
+        display.blit(text9, ((DISP_DIM[0] - text9.get_width()) / 2, 120 + off))
+        display.blit(text10, ((DISP_DIM[0] - text10.get_width()) / 2, 135 + off))
+        display.blit(text11, ((DISP_DIM[0] - text11.get_width()) / 2, 150 + off))
+        display.blit(text12, ((DISP_DIM[0] - text12.get_width()) / 2, 165 + off))
+        display.blit(text13, ((DISP_DIM[0] - text13.get_width()) / 2, 180 + off))
+        display.blit(text14, ((DISP_DIM[0] - text14.get_width()) / 2, 193 + off))
         window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
         pygame.display.update()
 
 #       main menu function and loop
 def intro():
-    text = big_font.render("GAME NAME", False, e.green)
-    intro_text = font.render("Start", False, e.green)
-    tut_text = font.render("tutorial", False, e.green)
+    text = big_font.render("GAME NAME", False, text_color)
+    intro_text = font.render("Start", False, text_color)
+    tut_text = font.render("tutorial", False, text_color)
     butt_coll = pygame.Rect(((DISP_DIM[0] - 100)/ 2, 100, 100, 40))
     tut_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
     butt = pygame.image.load("data/graphics/butt.png")
@@ -145,8 +165,8 @@ def intro():
         display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
         display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 100])
         display.blit(butt, [(DISP_DIM[0] - 100)/ 2, 160])
-        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 120))
-        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 180))
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 112))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 172))
         win.display(display, [0, 0])
         win.change_frame(1)
 
@@ -156,8 +176,7 @@ def intro():
 #       gameover loop
 def gameover():
     global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
-    x = 0
-    y = DISP_DIM[1] - 13
+    player.set_pos(0, DISP_DIM[1] - 13)
     player.set_flip(True)
     left = False
     right = False
@@ -166,9 +185,11 @@ def gameover():
     done = False
     lives = 10
     current_level = 1
-    text = big_font.render("Game Over", False, e.green)
-    intro_text = font.render("Play again", False, e.green)
-    tut_text = font.render("Quit", False, e.green)
+    map = e.level(current_level)
+    reset(map)
+    text = big_font.render("Game Over", False, text_color)
+    intro_text = font.render("Play again", False, text_color)
+    tut_text = font.render("Quit", False, text_color)
     butt_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 100, 100, 40))
     quit_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
     butt = pygame.image.load("data/graphics/butt.png")
@@ -196,15 +217,65 @@ def gameover():
         display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
         display.blit(butt, [(DISP_DIM[0] - 100) / 2, 100])
         display.blit(butt, [(DISP_DIM[0] - 100) / 2, 160])
-        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 120))
-        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 180))
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 112))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 172))
 
         window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
         pygame.display.update()
 
+#       endgame loop
+def end():
+    global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
+    player.set_pos(0, DISP_DIM[1] - 13)
+    player.set_flip(True)
+    left = False
+    right = False
+    gravity = 0
+    air_time = 0
+    done = False
+    lives = 10
+    current_level = 1
+    map = e.level(current_level)
+    reset(map)
+    text = big_font.render("YOU ESCAPED!", False, text_color)
+    intro_text = font.render("Play again", False, text_color)
+    wip_text = font.render("End still WIP", False, text_color)
+    tut_text = font.render("Quit", False, text_color)
+    butt_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 100, 100, 40))
+    quit_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
+    butt = pygame.image.load("data/graphics/butt.png")
+    bg = pygame.image.load("data/graphics/bg_intro.png")
+
+    while True:
+        display.fill(e.black)
+        realpos = [0, 0]
+        #       event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            realpos[0] = pos[0] / 2
+            realpos[1] = pos[1] / 2
+        if butt_coll.collidepoint(realpos):
+            return 0
+        if quit_coll.collidepoint(realpos):
+            pygame.quit()
+            sys.exit()
+
+        display.blit(bg, [0, 0])
+        display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 100])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 160])
+        display.blit(wip_text, [DISP_DIM[0] - wip_text.get_width(), DISP_DIM[1] - wip_text.get_height()])
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 112))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 172))
+
+        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+        pygame.display.update()
 
 intro()
-
 while True:
     display.fill(e.black)
 
@@ -245,6 +316,18 @@ while True:
     if gravity > 3:
         gravity = 3
 
+    tile_coll = [pygame.Rect((0, DISP_DIM[1], DISP_DIM[0], 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
+    for a in platforms:
+        if a.type != "key" and a.type != "spike":
+            tile_coll.append(a.collider)
+
+    under_player = ""
+    for a in platforms:
+        if a.x >= (player.x // 16) * 16  - 16 and a.x <= (player.x // 16) * 16 and a.y == player.y + 13:
+            under_player = a.type
+    if under_player == "movable":
+        player_movement[0] = 1
+
     #       moving and checking for touching the ground or roof
     coll = player.move(player_movement, tile_coll)
     if coll['bottom']:
@@ -262,9 +345,12 @@ while True:
             player.set_pos(0, DISP_DIM[1] - 13)
         if done:
             current_level += 1
-            map = e.level(current_level)
-            done = False
-            reset(map)
+            if current_level <= 2:
+                map = e.level(current_level)
+                done = False
+                reset(map)
+            else:
+                end()
 
     #       setting player anim
     if player_movement[0] == 0:
@@ -295,6 +381,9 @@ while True:
                 else:
                     gameover()
 
+        if a.type == "movable":
+            a.move()
+
     #       blit lives
     for a in range(lives):
         display.blit(life, (13 * a, 0))
@@ -303,7 +392,7 @@ while True:
     player.change_frame(1)
 
     #       rendering
-    text = font.render("level: " + str(current_level), False, e.black)
+    text = font.render("level: " + str(current_level), False, text_color)
     display.blit(text, (DISP_DIM[0] - text.get_width(), 0))
     window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
     pygame.display.update()
