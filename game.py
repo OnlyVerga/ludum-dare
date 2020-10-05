@@ -220,6 +220,57 @@ def gameover():
         window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
         pygame.display.update()
 
+def pause():
+    candle = e.entity(DISP_DIM[0] / 2 - 13, 0, 0, 0, "candle")
+    text = big_font.render("Pause", False, text_color)
+    intro_text = font.render("Resume", False, text_color)
+    tut_text = font.render("tutorial", False, text_color)
+    butt_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 100, 100, 40))
+    tut_coll = pygame.Rect(((DISP_DIM[0] - 100) / 2, 160, 100, 40))
+    butt = pygame.image.load("data/graphics/butt.png")
+    win = e.entity(23, 100, 1, 1, "window")
+    win.set_action("idle")
+    count = 0
+    while True:
+        realpos = [0, 0]
+        #       event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        if pygame.mouse.get_pressed()[0]:
+            pos = pygame.mouse.get_pos()
+            realpos[0] = pos[0] / 2
+            realpos[1] = pos[1] / 2
+
+        if butt_coll.collidepoint(realpos):
+            return 0
+        if tut_coll.collidepoint(realpos):
+            tut()
+
+        if count == 0:
+            if random.random() <= 0.005:
+                thunder_sound.play()
+                win.set_action("light")
+        if win.action == "light":
+            count += 1
+        if count == 30:
+            count = 0
+            win.set_action("idle")
+
+        display.blit(bg, [0, 0])
+        display.blit(text, (DISP_DIM[0] / 2 - text.get_width() / 2, 40))
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 100])
+        display.blit(butt, [(DISP_DIM[0] - 100) / 2, 160])
+        display.blit(intro_text, (DISP_DIM[0] / 2 - intro_text.get_width() / 2, 112))
+        display.blit(tut_text, (DISP_DIM[0] / 2 - tut_text.get_width() / 2, 172))
+        candle.display(display, [0, 0])
+        candle.change_frame(1)
+        win.display(display, [0, 0])
+        win.change_frame(1)
+
+        window.blit(pygame.transform.scale(display, WIN_DIM), [0, 0])
+        pygame.display.update()
 #       endgame loop
 def end():
     global right, left, gravity, air_time, player, done, lives, current_level, platforms, tile_coll
@@ -293,8 +344,7 @@ while True:
                 if air_time < 4:
                     gravity = -6
             if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+                pause()
 
         if event.type == pygame.KEYUP:
             if event.key in (pygame.K_a, pygame.K_LEFT):
