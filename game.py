@@ -276,6 +276,8 @@ def end():
         pygame.display.update()
 
 intro()
+
+#       main loop
 while True:
     display.fill(e.black)
 
@@ -316,17 +318,11 @@ while True:
     if gravity > 3:
         gravity = 3
 
+    #       updating colls (moving platforms require this to be done every game cycle)
     tile_coll = [pygame.Rect((0, DISP_DIM[1], DISP_DIM[0], 1)), pygame.Rect((-16, DISP_DIM[1] - 16, 16, 16))]
     for a in platforms:
         if a.type != "key" and a.type != "spike":
             tile_coll.append(a.collider)
-
-    under_player = ""
-    for a in platforms:
-        if a.x >= (player.x // 16) * 16  - 16 and a.x <= (player.x // 16) * 16 and a.y == player.y + 13:
-            under_player = a.type
-    if under_player == "movable":
-        player_movement[0] = 1
 
     #       moving and checking for touching the ground or roof
     coll = player.move(player_movement, tile_coll)

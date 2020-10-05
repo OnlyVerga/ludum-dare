@@ -3,7 +3,7 @@ import data.engine as e
 import sys
 import random
 
-color = e.blue
+active_color = e.blue
 
 class Platform:
     def __init__(self, x, y):
@@ -52,14 +52,14 @@ class Key:
 
 class Colored(Platform):
     def __init__(self, x, y, color, type):
-        super().__init__(x, y, color)
+        super().__init__(x, y)
         self.color = color
         self.type = type
         self.img = pygame.image.load(e.animation_folder + self.type + ".png")
         self.transparent = pygame.image.load(e.animation_folder + self.type + "_transparent.png")
 
     def blit(self, display):
-        if color == self.color:
+        if active_color == self.color:
             display.blit(self.img, (self.x, self.y))
         else:
             display.blit(self.transparent, (self.x, self.y))
@@ -71,6 +71,7 @@ class Movable(Half_Platform):
         self.end = (0, 0)
         self.dir = "to_end"
         self.type = "movable"
+
     def move(self):
         self.collider = pygame.Rect((self.x, self.y, 16, 8))
         if self.dir == "to_end":
@@ -88,8 +89,3 @@ class Movable(Half_Platform):
                 self.x -= 1
             if self.start[0] == self.x:
                 self.dir = "to_end"
-
-    def collide(self, player):
-        if player.obj.rect.colliderect(self.collider):
-            return True
-
