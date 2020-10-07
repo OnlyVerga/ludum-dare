@@ -62,7 +62,6 @@ def reset(map):
             elif map[a][b] == "B":
                 platform = Button(b * 16, a * 16)
                 onB.append(onButton(b * 16, a * 16))
-                print("added")
                 buffer = platform
                 platforms.append(platform)
             elif map[a][b] == "A":
@@ -379,7 +378,7 @@ while True:
                         player_movement[0] += 1
                     else:
                         player_movement[0] -= 1
-                player.set_action("idle")
+                    player.set_action("idle")
                 tile_coll.append(a.collider)
             else:
                 tile_coll.append(a.collider)
